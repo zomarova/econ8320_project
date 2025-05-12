@@ -38,8 +38,56 @@ delays = np.clip(delays, 1, None)  # ensure minimum delay is 1 day
 df["Days_To_Support"] = delays
 df["Support_Sent_Date"] = df["Grant_Req_Date"] + pd.to_timedelta(df["Days_To_Support"], unit="D")
 
+# === Step 8: Normalize demographic text columns ===
+# === Step 8: Clean and normalize demographic fields ===
 
-# === Step 8: Save Cleaned File ===
+# Function to standardize text columns
+def clean_column(col):
+    return col.astype(str).str.strip().str.title()
+
+# --- Clean Gender ---
+df["Gender"] = clean_column(df["Gender"])
+df["Gender"] = df["Gender"].replace({
+    "Transgender Female": "Other",
+    "Transgender Fem...": "Other",
+    "Other (Write In)": "Other",
+    "Unknown": "Other",
+    "Nan": "Other"
+})
+df["Gender"] = df["Gender"].fillna("Other")  # Ensure no NaNs
+
+# --- Clean Pt_State ---
+df["Pt_State"] = df["Pt_State"].astype(str).str.strip().str.upper()
+df = df[df["Pt_State"] != "NAN"]  # Remove missing state entries
+
+# --- Clean Insurance_Type ---
+# --- Clean Insurance_Type ---
+df["Insurance_Type"] = clean_column(df["Insurance_Type"])
+
+df["Insurance_Type"] = df["Insurance_Type"].replace({
+    "No Insurance": "Uninsured",
+    "None": "Uninsured",
+    "N/A": "Uninsured",
+    "Uninsurred": "Uninsured",
+    "Uninsurerd": "Uninsured",
+    "Unisured": "Uninsured",
+    "Private Insurance": "Private",
+    "Medicare & Private": "Medicare",
+    "Medicare & Other": "Medicare",
+    "Medicaid & Medicare": "Medicare",
+    "Medicaid & Medic...": "Medicare",
+    "Healthcare.Gov": "Other",
+    "Military Program": "Other",
+    "Unknown": "Other",
+    "Missing": "Other",
+    "Nan": "Other"
+})
+
+df["Insurance_Type"] = df["Insurance_Type"].fillna("Other")
+
+
+
+# === Step 9: Save Cleaned File ===
 output_file = "data/cleaned_data.csv"
 df.to_csv(output_file, index=False)
 
