@@ -183,7 +183,7 @@ elif page == "📈 Annual Impact Summary":
     else:
         col5.metric("⏱️ Avg Days to Support", "N/A")
 
-    # 📈 Trend Line
+    # 📈 Trend Li
     if 'App_Year' in approved_df.columns:
         trend_df = approved_df.groupby('App_Year').agg({
             'Amount': 'sum',
